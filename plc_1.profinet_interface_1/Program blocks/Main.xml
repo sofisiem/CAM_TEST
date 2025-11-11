@@ -1,0 +1,158 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Document>
+  <Engineering version="V20" />
+  <SW.Blocks.OB ID="0">
+    <AttributeList>
+      <Interface><Sections xmlns="http://www.siemens.com/automation/Openness/SW/Interface/v5">
+  <Section Name="Input">
+    <Member Name="Initial_Call" Datatype="Bool" Informative="true">
+      <Comment>
+        <MultiLanguageText Lang="en-US">Initial call of this OB</MultiLanguageText>
+      </Comment>
+    </Member>
+    <Member Name="Remanence" Datatype="Bool" Informative="true">
+      <Comment>
+        <MultiLanguageText Lang="en-US">=True, if remanent data are available</MultiLanguageText>
+      </Comment>
+    </Member>
+  </Section>
+  <Section Name="Temp" />
+  <Section Name="Constant" />
+</Sections></Interface>
+      <MemoryLayout>Optimized</MemoryLayout>
+      <Name>Main</Name>
+      <Namespace />
+      <Number>1</Number>
+      <ProgrammingLanguage>LAD</ProgrammingLanguage>
+      <SecondaryType>ProgramCycle</SecondaryType>
+      <SetENOAutomatically>false</SetENOAutomatically>
+    </AttributeList>
+    <ObjectList>
+      <MultilingualText ID="1" CompositionName="Comment">
+        <ObjectList>
+          <MultilingualTextItem ID="2" CompositionName="Items">
+            <AttributeList>
+              <Culture>en-US</Culture>
+              <Text />
+            </AttributeList>
+          </MultilingualTextItem>
+        </ObjectList>
+      </MultilingualText>
+      <SW.Blocks.CompileUnit ID="3" CompositionName="CompileUnits">
+        <AttributeList>
+          <NetworkSource><StructuredText xmlns="http://www.siemens.com/automation/Openness/SW/NetworkSource/StructuredText/v4">
+  <Access Scope="Call" UId="21">
+    <CallInfo UId="22" BlockType="FB" Name="SynchronousAxisCam">
+      <Instance Scope="GlobalVariable" UId="23">
+        <Component Name="SynchronousAxisCam_DB" UId="24">
+          <BooleanAttribute Name="HasQuotes" UId="25">true</BooleanAttribute>
+        </Component>
+      </Instance>
+      <Token Text="(" UId="26" />
+      <Parameter Name="Start" UId="27">
+        <Token Text=":=" UId="28" />
+        <Blank UId="29" />
+        <Access Scope="GlobalVariable" UId="30">
+          <Symbol UId="31">
+            <Component Name="STSRT_" UId="32" />
+          </Symbol>
+        </Access>
+      </Parameter>
+      <Token Text="," UId="33" />
+      <NewLine UId="34" />
+      <Blank Num="26" UId="35" />
+      <Parameter Name="synchronousAxisCamRef_1" UId="36">
+        <Token Text=":=" UId="37" />
+        <Blank UId="38" />
+        <Access Scope="GlobalVariable" UId="39">
+          <Symbol UId="40">
+            <Component Name="SynchronousAxis_1" UId="41">
+              <BooleanAttribute Name="HasQuotes" UId="42">true</BooleanAttribute>
+            </Component>
+          </Symbol>
+        </Access>
+      </Parameter>
+      <Token Text="," UId="43" />
+      <NewLine UId="44" />
+      <Blank Num="26" UId="45" />
+      <Parameter Name="synchronousAxisCamRef_2" UId="46">
+        <Token Text=":=" UId="47" />
+        <Blank UId="48" />
+        <Access Scope="GlobalVariable" UId="49">
+          <Symbol UId="50">
+            <Component Name="SynchronousAxis_2" UId="51">
+              <BooleanAttribute Name="HasQuotes" UId="52">true</BooleanAttribute>
+            </Component>
+          </Symbol>
+        </Access>
+      </Parameter>
+      <Token Text="," UId="53" />
+      <NewLine UId="54" />
+      <Blank Num="26" UId="55" />
+      <Parameter Name="virtualAxisRef" UId="56">
+        <Token Text=":=" UId="57" />
+        <Blank UId="58" />
+        <Access Scope="GlobalVariable" UId="59">
+          <Symbol UId="60">
+            <Component Name="virtual _master_axis" UId="61" />
+          </Symbol>
+        </Access>
+      </Parameter>
+      <Token Text="," UId="62" />
+      <NewLine UId="63" />
+      <Blank Num="26" UId="64" />
+      <Parameter Name="camRef" UId="65">
+        <Token Text=":=" UId="66" />
+        <Blank UId="67" />
+        <Access Scope="GlobalVariable" UId="68">
+          <Symbol UId="69">
+            <Component Name="Cam_1" UId="70">
+              <BooleanAttribute Name="HasQuotes" UId="71">true</BooleanAttribute>
+            </Component>
+          </Symbol>
+        </Access>
+      </Parameter>
+      <Token Text=")" UId="72" />
+    </CallInfo>
+  </Access>
+  <Token Text=";" UId="73" />
+  <NewLine UId="74" />
+</StructuredText></NetworkSource>
+          <ProgrammingLanguage>SCL</ProgrammingLanguage>
+        </AttributeList>
+        <ObjectList>
+          <MultilingualText ID="4" CompositionName="Comment">
+            <ObjectList>
+              <MultilingualTextItem ID="5" CompositionName="Items">
+                <AttributeList>
+                  <Culture>en-US</Culture>
+                  <Text />
+                </AttributeList>
+              </MultilingualTextItem>
+            </ObjectList>
+          </MultilingualText>
+          <MultilingualText ID="6" CompositionName="Title">
+            <ObjectList>
+              <MultilingualTextItem ID="7" CompositionName="Items">
+                <AttributeList>
+                  <Culture>en-US</Culture>
+                  <Text />
+                </AttributeList>
+              </MultilingualTextItem>
+            </ObjectList>
+          </MultilingualText>
+        </ObjectList>
+      </SW.Blocks.CompileUnit>
+      <MultilingualText ID="8" CompositionName="Title">
+        <ObjectList>
+          <MultilingualTextItem ID="9" CompositionName="Items">
+            <AttributeList>
+              <Culture>en-US</Culture>
+              <Text>"Main Program Sweep (Cycle)"</Text>
+            </AttributeList>
+          </MultilingualTextItem>
+        </ObjectList>
+      </MultilingualText>
+    </ObjectList>
+  </SW.Blocks.OB>
+</Document>

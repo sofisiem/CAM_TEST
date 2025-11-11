@@ -1,0 +1,166 @@
+﻿FUNCTION_BLOCK "SynchronousAxisCam"
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      Start : Bool;
+      synchronousAxisCamRef_1 {InstructionName := 'TO_SynchronousAxis'; LibVersion := '6.0'} : TO_SynchronousAxis;
+      synchronousAxisCamRef_2 {InstructionName := 'TO_SynchronousAxis'; LibVersion := '6.0'} : TO_SynchronousAxis;
+      virtualAxisRef {InstructionName := 'TO_PositioningAxis'; LibVersion := '6.0'} : TO_PositioningAxis;
+      camRef {InstructionName := 'TO_Cam'; LibVersion := '6.0'} : TO_Cam;
+   END_VAR
+
+   VAR 
+      PowerAxis_Slave_Cam_1 {InstructionName := 'MC_POWER'; LibVersion := '6.0'; S7_SetPoint := 'False'} : MC_POWER;
+      PowerAxis_Slave_Cam_2 {InstructionName := 'MC_POWER'; LibVersion := '6.0'; S7_SetPoint := 'False'} : MC_POWER;
+      HomeAxis_Slave_Cam_1 {InstructionName := 'MC_HOME'; LibVersion := '6.0'} : MC_HOME;
+      HomeAxis_Slave_Cam_2 {InstructionName := 'MC_HOME'; LibVersion := '6.0'} : MC_HOME;
+      PowerAxis_Master {InstructionName := 'MC_POWER'; LibVersion := '6.0'} : MC_POWER;
+      HomeAxis_Master {InstructionName := 'MC_HOME'; LibVersion := '6.0'} : MC_HOME;
+      MOVEVELOCITY_Master {InstructionName := 'MC_MOVEVELOCITY'; LibVersion := '6.0'} : MC_MOVEVELOCITY;
+      CamIn_1 {InstructionName := 'MC_CAMIN'; LibVersion := '6.0'} : MC_CAMIN;
+      CamIn_2 {InstructionName := 'MC_CAMIN'; LibVersion := '6.0'} : MC_CAMIN;
+      GearIN_1 {InstructionName := 'MC_GEARIN'; LibVersion := '6.0'} : MC_GEARIN;
+      Interpolate {InstructionName := 'MC_INTERPOLATECAM'; LibVersion := '6.0'} : MC_INTERPOLATECAM;
+      MyCycle { S7_SetPoint := 'True'} : Int;
+      MyCycleDone : Bool;
+   END_VAR
+
+
+BEGIN
+	"R_TRIG_DB"(CLK:=#Start);
+	
+	IF NOT #Start THEN
+	    #MyCycleDone := FALSE;
+	END_IF;
+	
+	
+	CASE #MyCycle OF
+	        
+	    0:
+	        IF "R_TRIG_DB".Q THEN
+	            #PowerAxis_Slave_Cam_1.Enable := TRUE;
+	            #PowerAxis_Slave_Cam_2.Enable := TRUE;
+	            #PowerAxis_Master.Enable := TRUE;
+	            #MyCycle := #MyCycle + 1;
+	        ELSE
+	            #PowerAxis_Slave_Cam_1.Enable := FALSE;
+	            #PowerAxis_Slave_Cam_2.Enable := FALSE;
+	            #PowerAxis_Master.Enable := FALSE;
+	        END_IF;
+	    1:
+	        IF #PowerAxis_Slave_Cam_1.Status AND #PowerAxis_Slave_Cam_2.Status THEN //AND #PowerAxis_Master.Status THEN
+	            #HomeAxis_Slave_Cam_1.Execute := TRUE;
+	            #HomeAxis_Slave_Cam_2.Execute := TRUE;
+	            #HomeAxis_Master.Execute := TRUE;
+	            #HomeAxis_Slave_Cam_1.Position := 230.0;
+	            #MyCycle := #MyCycle + 1;
+	        ELSE
+	            #HomeAxis_Slave_Cam_1.Execute := FALSE;
+	            #HomeAxis_Slave_Cam_2.Execute := FALSE;
+	            #HomeAxis_Master.Execute := FALSE;
+	        END_IF;
+	    2:
+	        IF #HomeAxis_Slave_Cam_1.Done AND  #HomeAxis_Slave_Cam_2.Done AND #HomeAxis_Master.Done THEN
+	            #MOVEVELOCITY_Master.Execute := TRUE;
+	            #MOVEVELOCITY_Master.Velocity := 100.0;
+	            #MOVEVELOCITY_Master.Direction := 0;
+	            #MyCycle := #MyCycle + 1;
+	        ELSE
+	            #MOVEVELOCITY_Master.Execute := FALSE;
+	        END_IF;
+	//SOLUTION WITH AXIS_1 in Gear and AXIS_2 In_CAM        
+	     // 3: 
+	     //     IF #MOVEVELOCITY_Master.InVelocity THEN
+	     //         #GearIN_1.Execute := TRUE;
+	     //         #MyCycle := #MyCycle + 1;
+	     //     ELSE
+	     //         #GearIN_1.Execute := FALSE;
+	     //     END_IF;
+	     // 4:
+	     //     IF #GearIN_1.InGear THEN
+	     //         #Interpolate.Execute := TRUE;
+	     //         #MyCycle := #MyCycle + 1;
+	     //     ELSE
+	     //         #Interpolate.Execute := FALSE;
+	     //     END_IF;
+	         
+	  // IF AXIS_1 in_CAM and AXIS_2 In_CAM 
+	      3: 
+	          IF #MOVEVELOCITY_Master.InVelocity THEN
+	              #Interpolate.Execute := TRUE;
+	              #MyCycle := #MyCycle + 1;
+	          ELSE
+	              #Interpolate.Execute := FALSE;
+	          END_IF;
+	      4:
+	          IF #Interpolate.Done THEN
+	              #CamIn_1.Execute := TRUE;
+	              #CamIn_1.ApplicationMode := 2; //With the "ApplicationMode" = 1 parameter, you define the application mode of the cam as "Cyclical".
+	              #CamIn_1.SyncProfileReference := 0; //With the parameter "SyncProfileReference" = 2, you specify the type of synchronization as directly set synchronously
+	              //When "SyncProfileReference" = 3:
+	              //Position OF the leading axis (relative TO the start position OF the cam) from which the synchronization begins
+	              //#CamIn_1.MasterStartDistance := 70.0;
+	              #CamIn_1.MasterSyncPosition := 100.0;
+	              #CamIn_1.SyncDirection := 3;
+	              // #CamIn_1.Velocity := -1.0;
+	              // #CamIn_1.Acceleration := -1.0;
+	              // #CamIn_1.Deceleration := -1.0;
+	              // #CamIn_1.MasterScaling := 1.0;
+	              // #CamIn_1.SlaveScaling := 2.0;
+	              #CamIn_2.Execute := TRUE;
+	              #CamIn_2.ApplicationMode := 1; 
+	              #CamIn_2.SyncProfileReference := 0;
+	              #CamIn_2.MasterStartDistance := 40.0;
+	              #CamIn_2.MasterSyncPosition := 100.0;
+	              // #CamIn_2.MasterScaling := 0.5;
+	              // #CamIn_2.SlaveScaling := 0.1;
+	              #MyCycle := #MyCycle + 1;
+	          ELSE
+	              #CamIn_1.Execute := FALSE;
+	              #CamIn_2.Execute := FALSE;
+	          END_IF;
+	     5: 
+	         IF #CamIn_1.EndOfProfile  AND #CamIn_2.EndOfProfile THEN
+	             #PowerAxis_Slave_Cam_1.Enable := FALSE;
+	             #PowerAxis_Slave_Cam_2.Enable := FALSE;
+	             #PowerAxis_Master.Enable := FALSE;
+	             #MyCycle := 0;
+	             #MyCycleDone := TRUE;
+	         END_IF;
+	         //#MyCycle := 0;
+	         
+	        
+	END_CASE;
+	
+	// POWER
+	#PowerAxis_Slave_Cam_1(Axis := #synchronousAxisCamRef_1);
+	#PowerAxis_Slave_Cam_2(Axis := #synchronousAxisCamRef_2);
+	#PowerAxis_Master(Axis := #virtualAxisRef);
+	
+	//HOME
+	#HomeAxis_Slave_Cam_1(Axis := #synchronousAxisCamRef_1);
+	#HomeAxis_Slave_Cam_2(Axis := #synchronousAxisCamRef_2);
+	#HomeAxis_Master(Axis := #virtualAxisRef);
+	
+	
+	//MOVEVELOCITY
+	#MOVEVELOCITY_Master(Axis := #virtualAxisRef);
+	
+	//INTERPOLATE
+	#Interpolate(Cam := #camRef);
+	
+	//CAM_IN
+	#CamIn_1(Master := #virtualAxisRef,
+	       Slave := #synchronousAxisCamRef_1,
+	       Cam := #camRef);
+	
+	#CamIn_2(Master := #virtualAxisRef,
+	         Slave := #synchronousAxisCamRef_2,
+	         Cam := #camRef);
+	
+	//GEAR_IN
+	#GearIN_1(Master := #virtualAxisRef,
+	          Slave := #synchronousAxisCamRef_1);
+	
+END_FUNCTION_BLOCK
+
